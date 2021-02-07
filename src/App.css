@@ -1,0 +1,17 @@
+.App-header {
+  text-align: center;
+}
+
+.Image-responsive {
+  object-fit: contain;
+  width: 100%;
+  height: auto;
+}
+
+input:focus, textarea:focus, select:focus{
+  outline: none;
+}
+
+.Highlight-character {
+  color: #2065a0;
+}
