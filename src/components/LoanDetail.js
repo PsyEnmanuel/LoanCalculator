@@ -99,7 +99,7 @@ const LoanDetail = () => {
     let ppmt = -loan.pmt - ipmt;
     balance += ppmt;
     table_loan.push({
-      payment: per,
+      payment: per + 1,
       principal: loan.currency + formatNumber(roundNumber(-ppmt, 100), 2),
       interest: loan.currency + formatNumber(roundNumber(-ipmt, 100), 2),
       balance: loan.currency + formatNumber(roundNumber(balance, 100), 2),

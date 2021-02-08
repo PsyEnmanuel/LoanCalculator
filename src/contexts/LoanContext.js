@@ -6,7 +6,6 @@ const LoanReducer = (state, action) => {
   let loans;
   switch (action.type) {
     case "SET_LOANS":
-      console.log(action.loans);
       return action.loans
     case "ADD_LOANS":
       loans = [
@@ -28,7 +27,6 @@ const LoanContextProvider = (props) => {
   const [loans, dispatch] = useReducer(LoanReducer, []);
 
   useEffect(() => {
-    
     if(localStorage.getItem("loans")) {
       dispatch({type: "SET_LOANS", loans: JSON.parse(localStorage.getItem("loans"))})
     }

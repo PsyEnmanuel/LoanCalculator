@@ -38,6 +38,9 @@ export const Select = styled.select`
   border-radius: 1em;
   width: 100%;
 `;
+export const ErrorInput = styled.small`
+  color: red
+`;
 export const Input = styled.input`
   border: none;
   background-image: none;
@@ -85,5 +88,9 @@ export const Button = styled.button`
   cursor: pointer;
   &:hover {
     background: #111;
+  }
+  &:disabled {
+    background: #cccccc !important;
+    cursor: not-allowed;
   }
 `;

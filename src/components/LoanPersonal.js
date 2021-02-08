@@ -1,6 +1,14 @@
-import React, { Component, useState, useContext } from "react";
+import React, { Component, useEffect, useState, useContext } from "react";
 import styled from "styled-components";
-import { Input, InputIcon, Label, FormItem, Button, Select } from "../styled";
+import {
+  Input,
+  InputIcon,
+  Label,
+  FormItem,
+  Button,
+  Select,
+  ErrorInput,
+} from "../styled";
 import { LoanContext } from "../contexts/LoanContext";
 import { roundNumber, PMT, isNumeric } from "../helper";
 import currency from "../data/currency";
@@ -43,21 +51,65 @@ const LoanPersonal = () => {
     pmt_rounded: null,
   });
 
+  const [errors, setError] = useState({
+    disabledSubmit: true,
+    data: {
+      amount: "",
+      rate: "",
+      years: "",
+    },
+  });
+
   function handleInputChange(e) {
+    let rules = e.target.dataset.rules.split("|");
+    rules.forEach((rule) => {
+      switch (rule.toUpperCase()) {
+        case "NUMBER":
+          if (e.target.value !== "" && !isNumeric(e.target.value)) {
+            setError((prevState) => ({
+              data: {
+                ...prevState.data,
+                [e.target.name]: `El campo ${e.target.dataset.field} debe ser un número valido.`,
+              },
+            }));
+          } else {
+            setError((prevState) => ({
+              data: {
+                ...prevState.data,
+                [e.target.name]: '',
+              },
+            }));
+          }
+          break;
+
+        default:
+          break;
+      }
+    });
+    // if (errors.data[e.target.name]) return;
     setState(Object.assign({}, state, { [e.target.name]: e.target.value }));
   }
 
+  useEffect(() => {
+    if (
+      isNumeric(state.amount) &&
+      isNumeric(state.rate) &&
+      isNumeric(state.years)
+    ) {
+      setError(
+        Object.assign({}, errors, {
+          disabledSubmit: false,
+        })
+      );
+    } else {
+      setError(
+        Object.assign({}, errors, { disabledSubmit: true })
+      );
+    }
+  }, [state]);
+
   function saveLoan(e) {
     e.preventDefault();
-    if(!isNumeric(state.amount)) {
-      alert("El campo 'Monto del préstamo' debe ser un número. Ej: 150000");
-    }
-    if(!isNumeric(state.rate)) {
-      alert("El campo 'Tasa de Interés' debe ser un número. Ej: 10, 8.5");
-    }
-    if(!isNumeric(state.years)) {
-      alert("El campo 'Cantidad de años' debe ser un número. Ej: 3, 3.5");
-    }
     if (state.amount > 0 && state.rate > 0 && state.years > 0) {
       let pmt = PMT(state.rate, state.years, state.amount);
       let id = loans.length ? loans[loans.length - 1].id + 1 : 1;
@@ -72,10 +124,8 @@ const LoanPersonal = () => {
           pmt_rounded: roundNumber(pmt, 100),
         }),
       });
-      history.push('/listado/'+id)
+      history.push("/listado/" + id);
       return;
-      
-      
     }
   }
 
@@ -110,9 +160,12 @@ const LoanPersonal = () => {
               value={state.amount}
               name="amount"
               onChange={(e) => handleInputChange(e)}
+              data-rules="required|number"
+              data-field="Monto del préstamo"
             ></Input>
             <AiOutlineDollarCircle />
           </InputIcon>
+          <ErrorInput>{errors.data.amount}</ErrorInput>
         </FormItem>
         <FormItem>
           <Label>Tasa de Interés ...</Label>
@@ -121,9 +174,12 @@ const LoanPersonal = () => {
               value={state.rate}
               name="rate"
               onChange={(e) => handleInputChange(e)}
+              data-rules="required|number"
+              data-field="Tasa de Interés"
             ></Input>
             <AiOutlinePercentage />
           </InputIcon>
+          <ErrorInput>{errors.data.rate}</ErrorInput>
         </FormItem>
         <FormItem>
           <Label>Cantidad de años ...</Label>
@@ -132,9 +188,12 @@ const LoanPersonal = () => {
               value={state.years}
               name="years"
               onChange={(e) => handleInputChange(e)}
+              data-rules="required|number"
+              data-field="Cantidad de años"
             ></Input>
             <AiOutlineCalendar />
           </InputIcon>
+          <ErrorInput>{errors.data.years}</ErrorInput>
         </FormItem>
         <FormItem>
           <Label>Moneda ...</Label>
@@ -147,7 +206,7 @@ const LoanPersonal = () => {
           </Select>
         </FormItem>
         <FormItem>
-          <Button>Calcular</Button>
+          <Button disabled={errors.disabledSubmit}>Calcular</Button>
         </FormItem>
       </form>
     </Wrapper>
